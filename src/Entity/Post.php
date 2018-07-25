@@ -191,6 +191,10 @@ class Post
         return $this->categories;
     }
 
+    /**
+     * @param Category $category
+     * @return Post
+     */
     public function addCategory(Category $category): self
     {
         if (!$this->categories->contains($category)) {
