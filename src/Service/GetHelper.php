@@ -7,6 +7,7 @@ use App\Entity\Category;
 use App\Entity\Post;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class GetHelper
 {
@@ -90,5 +91,22 @@ class GetHelper
         return $this->doctrine
             ->getRepository(Post::class)
             ->find($id);
+    }
+
+    /**
+     * Returns array with errors
+     *
+     * @param ConstraintViolationList $constraintViolationList
+     * @return array
+     */
+    public function toErrorsArray(ConstraintViolationList $constraintViolationList): array
+    {
+        $errorsIterator = $constraintViolationList->getIterator();
+        $errorsList = [];
+        foreach ($errorsIterator as $error) {
+            $errorsList[$error->getPropertyPath()] = $error->getMessage();
+        }
+
+        return $errorsList;
     }
 }

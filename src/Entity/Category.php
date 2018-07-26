@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
@@ -22,12 +23,21 @@ class Category
     /**
      * @var string
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank(message = "Category name is require field.")
+     * @Assert\Length(
+     *      min=3,
+     *      max=100,
+     *      minMessage = "Category name very short.",
+     *      maxMessage = "Category name very long."
+     * )
      */
     private $name;
 
     /**
      * @var string
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message = "Category description is require field.")
+     * @Assert\Length(min=3, minMessage = "Category description very short.")
      */
     private $description;
 

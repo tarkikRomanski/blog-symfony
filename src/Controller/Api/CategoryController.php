@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Category;
 use App\Service\GetHelper;
+use App\Service\ResponseHelper;
 use App\Service\SetHelper;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,56 +36,52 @@ class CategoryController extends Controller
     /**
      * @Route("/categories/{id}", name="api.category.show", methods="GET")
      * @param $id
-     * @param SerializerInterface $serializer
-     * @param GetHelper $helper
+     * @param ResponseHelper $responseHelper
+     * @param GetHelper $getHelper
      * @return Response|JsonResponse
      */
-    public function show($id, SerializerInterface $serializer, GetHelper $helper)
+    public function show($id, ResponseHelper $responseHelper, GetHelper $getHelper)
     {
-        $category = $helper->getCategory($id);
+        $category = $getHelper->getCategory($id);
 
-        return !is_null($category)
-            ? new Response($serializer->serialize($category, 'json'), Response::HTTP_OK)
-            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
+        return $responseHelper->checkNull($category, ['id' => $id]);
     }
 
     /**
      * @Route("/categories/{id}", name="api.category.update", methods="PUT")
      * @param int $id
      * @param Request $request
-     * @param SerializerInterface $serializer
-     * @param SetHelper $helper
+     * @param ResponseHelper $responseHelper
+     * @param SetHelper $setHelper
      * @return Response|JsonResponse
      */
-    public function update($id, Request $request, SerializerInterface $serializer, SetHelper $helper)
+    public function update($id, Request $request, ResponseHelper $responseHelper, SetHelper $setHelper)
     {
-        $category = $helper->updateCategory($id, [
+        $result = $setHelper->updateCategory($id, [
             'name' => $request->get('name'),
             'description' => $request->get('description')
         ]);
 
-        return !is_null($category)
-            ? new Response($serializer->serialize($category, 'json'), Response::HTTP_OK)
-            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
+        return $responseHelper->byValidator($result, ['id' => $id], Response::HTTP_OK, Response::HTTP_NOT_FOUND);
     }
 
     /**
      * @Route("/categories", name="api.category.create", methods="POST")
      * @param Request $request
-     * @param SerializerInterface $serializer
-     * @param SetHelper $helper
+     * @param SetHelper $setHelper
+     * @param ResponseHelper $responseHelper
      * @return Response
      */
-    public function store(Request $request, SerializerInterface $serializer, SetHelper $helper)
+    public function store(Request $request, SetHelper $setHelper, ResponseHelper $responseHelper)
     {
-        $category = $helper->createCategory(
+        $result = $setHelper->createCategory(
             [
                 'name' => $request->get('name'),
                 'description' => $request->get('description')
             ]
         );
 
-        return new Response($serializer->serialize($category, 'json'), Response::HTTP_CREATED);
+        return $responseHelper->byValidator($result);
     }
 
     /**

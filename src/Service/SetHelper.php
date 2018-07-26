@@ -7,6 +7,8 @@ use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Post;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SetHelper
 {
@@ -27,19 +29,27 @@ class SetHelper
      */
     private $uploader;
 
+    private $validator;
+
     /**
      * SetHelper constructor.
      * @param ContainerInterface $container
      * @param GetHelper $getHelper
      * @param Uploader $uploader
+     * @param ValidatorInterface $validator
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function __construct(ContainerInterface $container, GetHelper $getHelper, Uploader $uploader)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        GetHelper $getHelper,
+        Uploader $uploader,
+        ValidatorInterface $validator
+    ) {
         $this->container = $container;
         $this->getHelper = $getHelper;
         $this->uploader = $uploader;
+        $this->validator = $validator;
 
         if (!$container->has('doctrine')) {
             throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
@@ -116,14 +126,21 @@ class SetHelper
      * Creates new record into categories table
      *
      * @param array $data
-     * @return Category
+     * @return Category|ConstraintViolationList
      */
-    public function createCategory(array $data): Category
+    public function createCategory(array $data)
     {
         $entityManager = $this->doctrine->getManager();
         $category = new Category();
         $category->setName($data['name']);
         $category->setDescription($data['description']);
+
+        $errors = $this->validator->validate($category);
+
+        if (count($errors) > 0) {
+            return $errors;
+        }
+
         $entityManager->persist($category);
         $entityManager->flush();
         return $category;
@@ -134,17 +151,26 @@ class SetHelper
      *
      * @param $id
      * @param array $data
-     * @return Category
+     * @return Category|ConstraintViolationList
      */
-    public function updateCategory($id, array $data): Category
+    public function updateCategory($id, array $data)
     {
         $entityManager = $this->doctrine->getManager();
         $category = $entityManager->getRepository(Category::class)->find($id);
-        if (!is_null($category)) {
-            $category->setName($data['name']);
-            $category->setDescription($data['description']);
-            $entityManager->flush();
+        if (is_null($category)) {
+            return null;
         }
+        $category->setName($data['name']);
+        $category->setDescription($data['description']);
+
+        $errors = $this->validator->validate($category);
+
+        if (count($errors) > 0) {
+            return $errors;
+        }
+
+        $entityManager->flush();
+
 
         return $category;
     }
