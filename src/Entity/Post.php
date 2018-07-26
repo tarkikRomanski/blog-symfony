@@ -216,4 +216,27 @@ class Post
 
         return $this;
     }
+
+    /**
+     * @param Collection $categories
+     * @return Post
+     */
+    public function replaceCategories(Collection $categories): self
+    {
+        $existCategories = $this->getCategories();
+
+        foreach ($existCategories->toArray() as $category) {
+            if(!$categories->contains($category)) {
+                $this->removeCategory($category);
+            }
+        }
+
+        foreach ($categories->toArray() as $category) {
+            if (!$existCategories->contains($category)) {
+                $this->addCategory($category);
+            }
+        }
+
+        return $this;
+    }
 }
