@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Category;
 use App\Service\GetHelper;
+use App\Service\SetHelper;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,15 +51,15 @@ class CategoryController extends Controller
      * @param int $id
      * @param Request $request
      * @param SerializerInterface $serializer
+     * @param SetHelper $helper
      * @return Response
      */
-    public function update($id, Request $request, SerializerInterface $serializer)
+    public function update($id, Request $request, SerializerInterface $serializer, SetHelper $helper)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $category = $entityManager->getRepository(Category::class)->find($id);
-        $category->setName($request->get('name'));
-        $category->setDescription($request->get('description'));
-        $entityManager->flush();
+        $category = $helper->updateCategory($id, [
+            'name' => $request->get('name'),
+            'description' => $request->get('description')
+        ]);
         return new Response($serializer->serialize($category, 'json'), Response::HTTP_OK);
     }
 
@@ -66,16 +67,17 @@ class CategoryController extends Controller
      * @Route("/categories", name="api.category.create", methods="POST")
      * @param Request $request
      * @param SerializerInterface $serializer
+     * @param SetHelper $helper
      * @return Response
      */
-    public function store(Request $request, SerializerInterface $serializer)
+    public function store(Request $request, SerializerInterface $serializer, SetHelper $helper)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $category = new Category();
-        $category->setName($request->get('name'));
-        $category->setDescription($request->get('description'));
-        $entityManager->persist($category);
-        $entityManager->flush();
+        $category = $helper->createCategory(
+            [
+                'name' => $request->get('name'),
+                'description' => $request->get('description')
+            ]
+        );
 
         return new Response($serializer->serialize($category, 'json'), Response::HTTP_CREATED);
     }

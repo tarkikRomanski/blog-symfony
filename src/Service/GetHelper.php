@@ -72,7 +72,7 @@ class GetHelper
      * @param $id
      * @return Category|null
      */
-    public function getCategory($id) : ?Category
+    public function getCategory($id): ?Category
     {
         return $this->doctrine
             ->getRepository(Category::class)
@@ -85,7 +85,7 @@ class GetHelper
      * @param $id
      * @return Post|null
      */
-    public function getPost($id) : ?Post
+    public function getPost($id): ?Post
     {
         return $this->doctrine
             ->getRepository(Post::class)
