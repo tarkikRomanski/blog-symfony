@@ -4,10 +4,11 @@ namespace App\Service;
 
 
 use App\Entity\Category;
+use App\Entity\Post;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Container\ContainerInterface;
 
-class Helper
+class GetHelper
 {
     private $doctrine;
 
@@ -17,7 +18,7 @@ class Helper
     private $container;
 
     /**
-     * Helper constructor.
+     * GetHelper constructor.
      * @param ContainerInterface $container
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
@@ -49,22 +50,45 @@ class Helper
 
         $categoriesIdList = explode($delimiter, $categories);
 
-        if($onlyId) {
+        if ($onlyId) {
             return new ArrayCollection($categoriesIdList);
         }
 
 
-
         $categoriesList = new ArrayCollection();
         foreach ($categoriesIdList as $categoryId) {
-            $category = $this->doctrine
-                ->getRepository(Category::class)
-                ->find($categoryId);
+            $category = $this->getCategory($categoryId);
             if (!is_null($category) && !$categoriesList->contains($category)) {
                 $categoriesList->add($category);
             }
         }
 
         return $categoriesList;
+    }
+
+    /**
+     * Finds category by id
+     *
+     * @param $id
+     * @return Category|null
+     */
+    public function getCategory($id) : ?Category
+    {
+        return $this->doctrine
+            ->getRepository(Category::class)
+            ->find($id);
+    }
+
+    /**
+     * Finds post by id
+     *
+     * @param $id
+     * @return Post|null
+     */
+    public function getPost($id) : ?Post
+    {
+        return $this->doctrine
+            ->getRepository(Post::class)
+            ->find($id);
     }
 }

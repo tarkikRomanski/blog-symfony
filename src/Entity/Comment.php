@@ -50,7 +50,7 @@ class Comment
      */
     public function __construct()
     {
-        $this->created_at = new \DateTime();
+        $this->setCreatedAt(new \DateTime());
     }
 
     /**

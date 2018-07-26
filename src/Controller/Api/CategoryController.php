@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Category;
+use App\Service\GetHelper;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,13 +35,12 @@ class CategoryController extends Controller
      * @Route("/categories/{id}", name="api.category.show", methods="GET")
      * @param $id
      * @param SerializerInterface $serializer
+     * @param GetHelper $helper
      * @return Response
      */
-    public function show($id, SerializerInterface $serializer)
+    public function show($id, SerializerInterface $serializer, GetHelper $helper)
     {
-        $category =  $this->getDoctrine()
-            ->getRepository(Category::class)
-            ->find($id);
+        $category =  $helper->getCategory($id);
 
         return new Response($serializer->serialize($category, 'json'), Response::HTTP_OK);
     }

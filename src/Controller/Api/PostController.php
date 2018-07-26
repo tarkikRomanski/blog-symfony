@@ -4,7 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Category;
 use App\Entity\Post;
-use App\Service\Helper;
+use App\Service\GetHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,16 +23,15 @@ class PostController extends Controller
      * @Route("/posts", name="api.post.index", methods="GET")
      * @param Request $request
      * @param SerializerInterface $serializer
+     * @param GetHelper $helper
      * @return Response
      */
-    public function index(Request $request, SerializerInterface $serializer)
+    public function index(Request $request, SerializerInterface $serializer, GetHelper $helper)
     {
         $categoryId = $request->get('category');
 
         if (!is_null($categoryId)) {
-            $category = $this->getDoctrine()
-                ->getRepository(Category::class)
-                ->find($categoryId);
+            $category = $helper->getCategory($categoryId);
 
             $posts = !is_null($category) ? $category->getPosts() : [];
             return new Response($serializer->serialize($posts, 'json'), Response::HTTP_OK);
@@ -48,10 +47,10 @@ class PostController extends Controller
      * @Route("/posts", name="api.post.store", methods="POST")
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @param Helper $helper
+     * @param GetHelper $helper
      * @return Response
      */
-    public function store(Request $request, SerializerInterface $serializer, Helper $helper)
+    public function store(Request $request, SerializerInterface $serializer, GetHelper $helper)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $post = new Post();
@@ -72,14 +71,31 @@ class PostController extends Controller
     }
 
     /**
+     * @Route("/posts/{id}", name="api.posts.show", methods="GET")
+     * @param $id
+     * @param SerializerInterface $serializer
+     * @param GetHelper $helper
+     * @return Response|JsonResponse
+     */
+    public function show($id, SerializerInterface $serializer, GetHelper $helper)
+    {
+        $post = $helper->getPost($id);
+
+        return is_null($post)
+            ? new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND)
+            : new Response($serializer->serialize($post, 'json'), Response::HTTP_OK)
+        ;
+    }
+
+    /**
      * @Route("/posts/{id}", name="api.post.update", methods="PUT")
      * @param int $id
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @param Helper $helper
+     * @param GetHelper $helper
      * @return Response
      */
-    public function update($id, Request $request, SerializerInterface $serializer, Helper $helper)
+    public function update($id, Request $request, SerializerInterface $serializer, GetHelper $helper)
     {
         $entityManager = $this->getDoctrine()->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
