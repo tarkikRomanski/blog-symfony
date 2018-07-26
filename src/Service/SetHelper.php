@@ -23,16 +23,23 @@ class SetHelper
     private $getHelper;
 
     /**
+     * @var Uploader
+     */
+    private $uploader;
+
+    /**
      * SetHelper constructor.
      * @param ContainerInterface $container
      * @param GetHelper $getHelper
+     * @param Uploader $uploader
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function __construct(ContainerInterface $container, GetHelper $getHelper)
+    public function __construct(ContainerInterface $container, GetHelper $getHelper, Uploader $uploader)
     {
         $this->container = $container;
         $this->getHelper = $getHelper;
+        $this->uploader = $uploader;
 
         if (!$container->has('doctrine')) {
             throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
@@ -54,11 +61,17 @@ class SetHelper
         $post->setName($data['name']);
         $post->setContent($data['content']);
 
-        if (!is_null($data['categories'])) {
+        if (isset($data['categories']) && !is_null($data['categories'])) {
             $newCategories = $this->getHelper->toCategories($data['categories'])->toArray();
             foreach ($newCategories as $category) {
                 $post->addCategory($category);
             }
+        }
+
+        if (isset($data['file']) && !is_null($data['file'])) {
+            $file = $this->uploader->upload($data['file']);
+            $post->setFile($file['name']);
+            $post->setFileType($file['type']);
         }
 
         $entityManager->persist($post);
@@ -78,7 +91,7 @@ class SetHelper
     {
         $entityManager = $this->doctrine->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
-        if(!is_null($post)) {
+        if (!is_null($post)) {
             $post->setName($data['name']);
             $post->setContent($data['content']);
 
@@ -86,6 +99,13 @@ class SetHelper
                 $newCategories = $this->getHelper->toCategories($data['categories']);
                 $post->replaceCategories($newCategories);
             }
+
+            if (isset($data['file']) && !is_null($data['file'])) {
+                $file = $this->uploader->upload($data['file']);
+                $post->setFile($file['name']);
+                $post->setFileType($file['type']);
+            }
+
             $entityManager->flush();
         }
 
@@ -140,8 +160,12 @@ class SetHelper
         $comment = new Comment();
         $comment->setAuthor($data['author']);
         $comment->setContent($data['content']);
-        $comment->setPost($this->getHelper->getPost($data['post_id']));
-        $comment->setCategory($this->getHelper->getCategory($data['category_id']));
+        if (isset($data['post_id']) && !is_null($data['post_id'])) {
+            $comment->setPost($this->getHelper->getPost($data['post_id']));
+        }
+        if (isset($data['category_id']) && !is_null($data['category_id'])) {
+            $comment->setCategory($this->getHelper->getCategory($data['category_id']));
+        }
         $entityManager->persist($comment);
         $entityManager->flush();
         return $comment;

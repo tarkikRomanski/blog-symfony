@@ -2,10 +2,10 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Category;
 use App\Entity\Post;
 use App\Service\GetHelper;
 use App\Service\SetHelper;
+use App\Service\Uploader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +57,8 @@ class PostController extends Controller
             [
                 'name' => $request->get('name'),
                 'content' => $request->get('content'),
-                'categories' => $request->get('categories')
+                'categories' => $request->get('categories'),
+                'file' => $request->files->get('file')
             ]
         );
 
@@ -95,7 +96,8 @@ class PostController extends Controller
         $post = $helper->updatePost($id, [
             'name' => $request->get('name'),
             'content' => $request->get('content'),
-            'categories' => $request->get('categories')
+            'categories' => $request->get('categories'),
+            'file' => $request->files->get('file')
         ]);
 
         return !is_null($post)
