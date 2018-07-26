@@ -15,4 +15,12 @@ class CategoryController extends Controller
     {
         return $this->render('category/index.html.twig');
     }
+
+    /**
+     * @Route("/category/{id}", name="category.update")
+     */
+    public function update($id)
+    {
+        return $this->render('category/index.html.twig');
+    }
 }

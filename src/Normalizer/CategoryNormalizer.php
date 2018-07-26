@@ -20,7 +20,15 @@ class CategoryNormalizer implements NormalizerInterface
         return [
             'id' => $object->getId(),
             'name' => $object->getName(),
-            'description' => $object->getDescription()
+            'description' => $object->getDescription(),
+            'comments' => array_map(function (Comment $comment) {
+                return [
+                    'id' => $comment->getId(),
+                    'author' => $comment->getAuthor(),
+                    'content' => $comment->getContent(),
+                    'created' => $comment->getCreatedAt()->format('Y.m.d')
+                ];
+            }, $object->getComments()->toArray()),
         ];
     }
 
