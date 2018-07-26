@@ -48,8 +48,8 @@ class PostController extends Controller
      * @Route("/posts", name="api.post.store", methods="POST")
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @param GetHelper $helper
-     * @return Response
+     * @param SetHelper $helper
+     * @return Response|JsonResponse
      */
     public function store(Request $request, SerializerInterface $serializer, SetHelper $helper)
     {
@@ -61,7 +61,9 @@ class PostController extends Controller
             ]
         );
 
-        return new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED);
+        return !is_null($post)
+            ? new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED)
+            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -86,7 +88,7 @@ class PostController extends Controller
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param SetHelper $helper
-     * @return Response
+     * @return Response|JsonResponse
      */
     public function update($id, Request $request, SerializerInterface $serializer, SetHelper $helper)
     {
@@ -96,7 +98,9 @@ class PostController extends Controller
             'categories' => $request->get('categories')
         ]);
 
-        return new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED);
+        return !is_null($post)
+            ? new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED)
+            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -108,8 +112,12 @@ class PostController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
-        $entityManager->remove($post);
-        $entityManager->flush();
-        return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        if(!is_null($post)) {
+            $entityManager->remove($post);
+            $entityManager->flush();
+            return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        }
+
+        return new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 }

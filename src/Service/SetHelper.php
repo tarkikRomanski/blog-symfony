@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Post;
+use Psr\Container\ContainerInterface;
 
 class SetHelper
 {
@@ -17,14 +18,21 @@ class SetHelper
     private $container;
 
     /**
+     * @var GetHelper
+     */
+    private $getHelper;
+
+    /**
      * SetHelper constructor.
      * @param ContainerInterface $container
+     * @param GetHelper $getHelper
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, GetHelper $getHelper)
     {
         $this->container = $container;
+        $this->getHelper = $getHelper;
 
         if (!$container->has('doctrine')) {
             throw new \LogicException('The DoctrineBundle is not registered in your application. Try running "composer require symfony/orm-pack".');
@@ -37,10 +45,9 @@ class SetHelper
      * Creates new record into posts table
      *
      * @param array $data
-     * @param GetHelper $helper
      * @return Post
      */
-    public function createPost(array $data, GetHelper $helper): Post
+    public function createPost(array $data): Post
     {
         $entityManager = $this->doctrine->getManager();
         $post = new Post();
@@ -48,7 +55,7 @@ class SetHelper
         $post->setContent($data['content']);
 
         if (!is_null($data['categories'])) {
-            $newCategories = $helper->toCategories($data['categories'])->toArray();
+            $newCategories = $this->getHelper->toCategories($data['categories'])->toArray();
             foreach ($newCategories as $category) {
                 $post->addCategory($category);
             }
@@ -65,21 +72,22 @@ class SetHelper
      *
      * @param $id
      * @param array $data
-     * @param GetHelper $helper
      * @return Post
      */
-    public function updatePost($id, array $data, GetHelper $helper): Post
+    public function updatePost($id, array $data): Post
     {
         $entityManager = $this->doctrine->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
-        $post->setName($data['name']);
-        $post->setContent($data['content']);
+        if(!is_null($post)) {
+            $post->setName($data['name']);
+            $post->setContent($data['content']);
 
-        if (!is_null($data['categories'])) {
-            $newCategories = $helper->toCategories($data['categories']);
-            $post->replaceCategories($newCategories);
+            if (!is_null($data['categories'])) {
+                $newCategories = $this->getHelper->toCategories($data['categories']);
+                $post->replaceCategories($newCategories);
+            }
+            $entityManager->flush();
         }
-        $entityManager->flush();
 
         return $post;
     }
@@ -112,26 +120,28 @@ class SetHelper
     {
         $entityManager = $this->doctrine->getManager();
         $category = $entityManager->getRepository(Category::class)->find($id);
-        $category->setName($data['name']);
-        $category->setDescription($data['description']);
-        $entityManager->flush();
+        if (!is_null($category)) {
+            $category->setName($data['name']);
+            $category->setDescription($data['description']);
+            $entityManager->flush();
+        }
+
         return $category;
     }
 
     /**
      * Creates new record into comments table
      * @param array $data
-     * @param GetHelper $helper
      * @return Comment
      */
-    public function createComment(array $data, GetHelper $helper): Comment
+    public function createComment(array $data): Comment
     {
         $entityManager = $this->doctrine->getManager();
         $comment = new Comment();
         $comment->setAuthor($data['author']);
         $comment->setContent($data['content']);
-        $comment->setPost($helper->getPost($data['post_id']));
-        $comment->setCategory($helper->getCategory($data['category_id']));
+        $comment->setPost($this->getHelper->getPost($data['post_id']));
+        $comment->setCategory($this->getHelper->getCategory($data['category_id']));
         $entityManager->persist($comment);
         $entityManager->flush();
         return $comment;

@@ -37,13 +37,15 @@ class CategoryController extends Controller
      * @param $id
      * @param SerializerInterface $serializer
      * @param GetHelper $helper
-     * @return Response
+     * @return Response|JsonResponse
      */
     public function show($id, SerializerInterface $serializer, GetHelper $helper)
     {
-        $category =  $helper->getCategory($id);
+        $category = $helper->getCategory($id);
 
-        return new Response($serializer->serialize($category, 'json'), Response::HTTP_OK);
+        return !is_null($category)
+            ? new Response($serializer->serialize($category, 'json'), Response::HTTP_OK)
+            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -52,7 +54,7 @@ class CategoryController extends Controller
      * @param Request $request
      * @param SerializerInterface $serializer
      * @param SetHelper $helper
-     * @return Response
+     * @return Response|JsonResponse
      */
     public function update($id, Request $request, SerializerInterface $serializer, SetHelper $helper)
     {
@@ -60,7 +62,10 @@ class CategoryController extends Controller
             'name' => $request->get('name'),
             'description' => $request->get('description')
         ]);
-        return new Response($serializer->serialize($category, 'json'), Response::HTTP_OK);
+
+        return !is_null($category)
+            ? new Response($serializer->serialize($category, 'json'), Response::HTTP_OK)
+            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -87,11 +92,16 @@ class CategoryController extends Controller
      * @param $id
      * @return JsonResponse
      */
-    public function delete($id) {
+    public function delete($id)
+    {
         $entityManager = $this->getDoctrine()->getManager();
         $category = $entityManager->getRepository(Category::class)->find($id);
-        $entityManager->remove($category);
-        $entityManager->flush();
-        return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        if (!is_null($category)) {
+            $entityManager->remove($category);
+            $entityManager->flush();
+            return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        }
+
+        return new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 }
