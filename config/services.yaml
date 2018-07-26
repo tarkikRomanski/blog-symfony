@@ -30,6 +30,11 @@ services:
     # please note that last definitions always *replace* previous ones
 
     get_set_method_normalizer:
-            class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
-            public: false
-            tags: [serializer.normalizer]
+        class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
+        public: false
+        tags: [serializer.normalizer]
+
+
+    category_normalizer:
+        class: App\Normalizer\CategoryNormalizer
+        tags: [serializer.normalizer]
