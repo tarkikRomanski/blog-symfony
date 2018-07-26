@@ -88,9 +88,7 @@ class PostController extends Controller
 
         if (!is_null($request->get('categories'))) {
             $newCategories = $helper->toCategories($request->get('categories'));
-            foreach ($newCategories as $category) {
-                $post->addCategory($category);
-            }
+            $post->replaceCategories($newCategories);
         }
         $entityManager->flush();
 
