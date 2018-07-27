@@ -53,8 +53,7 @@ class SessionHelper
      */
     public function getBrowsersQuantity()
     {
-        $sessionRepository = $this->getDoctrine()
-            ->getRepository(Session::class);
+        $sessionRepository = $this->doctrine->getRepository(Session::class);
 
         return [
             'chrome' => count($sessionRepository->getChromeUsers()),

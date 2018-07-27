@@ -5,6 +5,15 @@
         <title>{% block title %}Symfony blog{% endblock %}</title>
     </head>
     <body>
+        <header>
+            {% set browsers = session_helper.getBrowsersQuantity() %}
+            <ul>
+                {% for browser in browsers %}
+                    <li>{{ browser }}</li>
+                {% endfor %}
+            </ul>
+        </header>
+
         {% block content %}{% endblock %}
     </body>
 </html>
