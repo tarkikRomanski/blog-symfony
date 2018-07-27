@@ -4,6 +4,7 @@ namespace App\Normalizer;
 
 
 use App\Entity\Category;
+use App\Entity\Comment;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class CategoryNormalizer implements NormalizerInterface

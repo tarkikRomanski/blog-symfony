@@ -23,7 +23,7 @@ class Uploader
 
     /**
      * @param UploadedFile $file
-     * @return string
+     * @return array
      */
     public function upload(UploadedFile $file)
     {

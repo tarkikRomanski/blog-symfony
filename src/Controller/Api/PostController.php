@@ -4,8 +4,8 @@ namespace App\Controller\Api;
 
 use App\Entity\Post;
 use App\Service\GetHelper;
+use App\Service\ResponseHelper;
 use App\Service\SetHelper;
-use App\Service\Uploader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,15 +24,15 @@ class PostController extends Controller
      * @Route("/posts", name="api.post.index", methods="GET")
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @param GetHelper $helper
+     * @param GetHelper $getHelper
      * @return Response
      */
-    public function index(Request $request, SerializerInterface $serializer, GetHelper $helper)
+    public function index(Request $request, SerializerInterface $serializer, GetHelper $getHelper)
     {
         $categoryId = $request->get('category');
 
         if (!is_null($categoryId)) {
-            $category = $helper->getCategory($categoryId);
+            $category = $getHelper->getCategory($categoryId);
 
             $posts = !is_null($category) ? $category->getPosts() : [];
             return new Response($serializer->serialize($posts, 'json'), Response::HTTP_OK);
@@ -47,13 +47,13 @@ class PostController extends Controller
     /**
      * @Route("/posts", name="api.post.store", methods="POST")
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param SetHelper $helper
+     * @param ResponseHelper $responseHelper
      * @return Response|JsonResponse
      */
-    public function store(Request $request, SerializerInterface $serializer, SetHelper $helper)
+    public function store(Request $request, SetHelper $helper, ResponseHelper $responseHelper)
     {
-        $post = $helper->createPost(
+        $result = $helper->createPost(
             [
                 'name' => $request->get('name'),
                 'content' => $request->get('content'),
@@ -62,47 +62,48 @@ class PostController extends Controller
             ]
         );
 
-        return !is_null($post)
-            ? new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED)
-            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
+        return $responseHelper->byValidator($result);
     }
 
     /**
      * @Route("/posts/{id}", name="api.posts.show", methods="GET")
      * @param $id
-     * @param SerializerInterface $serializer
-     * @param GetHelper $helper
+     * @param ResponseHelper $responseHelper
+     * @param GetHelper $getHelper
      * @return Response|JsonResponse
      */
-    public function show($id, SerializerInterface $serializer, GetHelper $helper)
+    public function show($id, ResponseHelper $responseHelper, GetHelper $getHelper)
     {
-        $post = $helper->getPost($id);
+        $post = $getHelper->getPost($id);
 
-        return is_null($post)
-            ? new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND)
-            : new Response($serializer->serialize($post, 'json'), Response::HTTP_OK);
+        return $responseHelper->checkNull($post, ['id' => $id]);
     }
 
     /**
      * @Route("/posts/{id}", name="api.post.update", methods="PUT")
      * @param int $id
      * @param Request $request
-     * @param SerializerInterface $serializer
+     * @param ResponseHelper $responseHelper
      * @param SetHelper $helper
      * @return Response|JsonResponse
      */
-    public function update($id, Request $request, SerializerInterface $serializer, SetHelper $helper)
+    public function update($id, Request $request, ResponseHelper $responseHelper, SetHelper $helper)
     {
-        $post = $helper->updatePost($id, [
+        $result = $helper->updatePost($id, [
             'name' => $request->get('name'),
             'content' => $request->get('content'),
             'categories' => $request->get('categories'),
             'file' => $request->files->get('file')
         ]);
 
-        return !is_null($post)
-            ? new Response($serializer->serialize($post, 'json'), Response::HTTP_CREATED)
-            : new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
+        return $responseHelper->byValidator(
+            $result,
+            [
+                'id' => $id
+            ],
+            Response::HTTP_OK,
+            Response::HTTP_NOT_FOUND
+        );
     }
 
     /**

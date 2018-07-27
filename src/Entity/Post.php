@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
@@ -23,12 +24,24 @@ class Post
     /**
      * @var string
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank(message = "Post name is require field.")
+     * @Assert\Length(
+     *      min=3,
+     *      max=100,
+     *      minMessage = "Post name is very short.",
+     *      maxMessage = "Post name is very long."
+     * )
      */
     private $name;
 
     /**
      * @var string
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message = "Post content is require field.")
+     * @Assert\Length(
+     *      min=3,
+     *      minMessage = "Post name is very short."
+     * )
      */
     private $content;
 

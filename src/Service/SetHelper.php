@@ -7,7 +7,9 @@ use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Post;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SetHelper
@@ -29,6 +31,9 @@ class SetHelper
      */
     private $uploader;
 
+    /**
+     * @var ValidatorInterface
+     */
     private $validator;
 
     /**
@@ -62,9 +67,9 @@ class SetHelper
      * Creates new record into posts table
      *
      * @param array $data
-     * @return Post
+     * @return Post|ConstraintViolationListInterface
      */
-    public function createPost(array $data): Post
+    public function createPost(array $data)
     {
         $entityManager = $this->doctrine->getManager();
         $post = new Post();
@@ -79,9 +84,29 @@ class SetHelper
         }
 
         if (isset($data['file']) && !is_null($data['file'])) {
+
+            if ($data['file']->getSize() > 2000000 || $data['file']->getSize() === false) {
+                return new ConstraintViolationList([
+                    new ConstraintViolation(
+                        'The file should be less than 2 Mb',
+                        '',
+                        [],
+                        null,
+                        'file',
+                        null
+                    )
+                ]);
+            }
+
             $file = $this->uploader->upload($data['file']);
             $post->setFile($file['name']);
             $post->setFileType($file['type']);
+        }
+
+        $errors = $this->validator->validate($post);
+
+        if (count($errors) > 0) {
+            return $errors;
         }
 
         $entityManager->persist($post);
@@ -95,9 +120,9 @@ class SetHelper
      *
      * @param $id
      * @param array $data
-     * @return Post
+     * @return Post|ConstraintViolationListInterface
      */
-    public function updatePost($id, array $data): Post
+    public function updatePost($id, array $data)
     {
         $entityManager = $this->doctrine->getManager();
         $post = $entityManager->getRepository(Post::class)->find($id);
@@ -116,6 +141,12 @@ class SetHelper
                 $post->setFileType($file['type']);
             }
 
+            $errors = $this->validator->validate($post);
+
+            if (count($errors) > 0) {
+                return $errors;
+            }
+
             $entityManager->flush();
         }
 
@@ -126,7 +157,7 @@ class SetHelper
      * Creates new record into categories table
      *
      * @param array $data
-     * @return Category|ConstraintViolationList
+     * @return Category|ConstraintViolationListInterface
      */
     public function createCategory(array $data)
     {
@@ -151,7 +182,7 @@ class SetHelper
      *
      * @param $id
      * @param array $data
-     * @return Category|ConstraintViolationList
+     * @return Category|ConstraintViolationListInterface
      */
     public function updateCategory($id, array $data)
     {
@@ -178,9 +209,9 @@ class SetHelper
     /**
      * Creates new record into comments table
      * @param array $data
-     * @return Comment
+     * @return Comment|ConstraintViolationListInterface
      */
-    public function createComment(array $data): Comment
+    public function createComment(array $data)
     {
         $entityManager = $this->doctrine->getManager();
         $comment = new Comment();
@@ -192,6 +223,13 @@ class SetHelper
         if (isset($data['category_id']) && !is_null($data['category_id'])) {
             $comment->setCategory($this->getHelper->getCategory($data['category_id']));
         }
+
+        $errors = $this->validator->validate($comment);
+
+        if (count($errors) > 0) {
+            return $errors;
+        }
+
         $entityManager->persist($comment);
         $entityManager->flush();
         return $comment;

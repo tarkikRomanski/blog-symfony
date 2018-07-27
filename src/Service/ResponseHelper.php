@@ -24,6 +24,7 @@ class ResponseHelper
     /**
      * ResponseHelper constructor.
      * @param GetHelper $getHelper
+     * @param SerializerInterface $serializer
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

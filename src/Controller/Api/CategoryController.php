@@ -62,7 +62,14 @@ class CategoryController extends Controller
             'description' => $request->get('description')
         ]);
 
-        return $responseHelper->byValidator($result, ['id' => $id], Response::HTTP_OK, Response::HTTP_NOT_FOUND);
+        return $responseHelper->byValidator(
+            $result,
+            [
+                'id' => $id
+            ],
+            Response::HTTP_OK,
+            Response::HTTP_NOT_FOUND
+        );
     }
 
     /**

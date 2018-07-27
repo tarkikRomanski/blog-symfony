@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Comment;
+use App\Service\ResponseHelper;
 use App\Service\SetHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,12 +22,13 @@ class CommentController extends Controller
     /**
      * @Route("/comments", name="api.comment.store", methods="POST")
      * @param Request $request
-     * @param SerializerInterface $serializer
+     * @param ResponseHelper $responseHelper
+     * @param SetHelper $setHelper
      * @return Response
      */
-    public function store(Request $request, SerializerInterface $serializer, SetHelper $helper)
+    public function store(Request $request, ResponseHelper $responseHelper, SetHelper $setHelper)
     {
-        $comment = $helper->createComment(
+        $result = $setHelper->createComment(
             [
                 'author' => $request->get('author'),
                 'content' => $request->get('content'),
@@ -35,7 +37,7 @@ class CommentController extends Controller
             ]
         );
 
-        return new Response($serializer->serialize($comment, 'json'), Response::HTTP_CREATED);
+        return $responseHelper->byValidator($result);
     }
 
     /**
@@ -46,8 +48,12 @@ class CommentController extends Controller
     public function delete($id) {
         $entityManager = $this->getDoctrine()->getManager();
         $comment = $entityManager->getRepository(Comment::class)->find($id);
-        $entityManager->remove($comment);
-        $entityManager->flush();
-        return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        if (!is_null($comment)) {
+            $entityManager->remove($comment);
+            $entityManager->flush();
+            return new JsonResponse(['id' => $id], Response::HTTP_OK);
+        }
+
+        return new JsonResponse(['id' => $id], Response::HTTP_NOT_FOUND);
     }
 }

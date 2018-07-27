@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
@@ -20,12 +21,28 @@ class Comment
     /**
      * @var string
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank(message = "Comment author is require field.")
+     * @Assert\Length(
+     *      min=3,
+     *      max=100,
+     *      minMessage = "Comment author is very short.",
+     *      maxMessage = "Comment author is very long."
+     * )
+     * @Assert\Regex(
+     *     pattern="/^([A-Z][a-z]+([ ]?[a-z]?[\'-]?[A-Z][a-z]+))$/",
+     *     message="The author field should be two words with capital letters"
+     * )
      */
     private $author;
 
     /**
      * @var string
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message = "Comment content is require field.")
+     * @Assert\Length(
+     *      min=3,
+     *      minMessage = "Comment content is very short.",
+     * )
      */
     private $content;
 
