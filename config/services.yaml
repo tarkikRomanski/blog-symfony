@@ -49,3 +49,7 @@ services:
     App\Service\Uploader:
             arguments:
                 $targetDirectory: '%storage_directory%'
+
+    App\EventListener\SessionListener:
+            tags:
+                - { name: kernel.event_listener, event: kernel.request }
