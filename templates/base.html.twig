@@ -8,8 +8,8 @@
         <header>
             {% set browsers = session_helper.getBrowsersQuantity() %}
             <ul>
-                {% for browser in browsers %}
-                    <li>{{ browser }}</li>
+                {% for browser, quantity in browsers %}
+                    <li><strong>{{ browser|capitalize }}:</strong> {{ quantity }}</li>
                 {% endfor %}
             </ul>
         </header>
