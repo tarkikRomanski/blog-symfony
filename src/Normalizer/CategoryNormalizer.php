@@ -5,10 +5,25 @@ namespace App\Normalizer;
 
 use App\Entity\Category;
 use App\Entity\Comment;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class CategoryNormalizer implements NormalizerInterface
 {
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
+     * CategoryNormalizer constructor.
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     /**
      * @param Category $object
      * @param null $format
@@ -22,6 +37,8 @@ class CategoryNormalizer implements NormalizerInterface
             'id' => $object->getId(),
             'name' => $object->getName(),
             'description' => $object->getDescription(),
+            'editLink' => $this->container->get('router')->generate('category.update', ['id' => $object->getId()]),
+            'postsQuantity' => $object->getPosts()->count(),
             'comments' => array_map(function (Comment $comment) {
                 return [
                     'id' => $comment->getId(),

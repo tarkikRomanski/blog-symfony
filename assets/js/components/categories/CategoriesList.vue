@@ -8,28 +8,25 @@
                     </a>
                 </h3>
                 <div class="categoryItem__tools">
-                    <a href="#" class="btn btn-danger" @click="destroy(category.id)"><i class="fa fa-trash"></i></a>
+                    <span class="btn btn-danger" @click="destroy(category.id)"><i class="fa fa-trash"></i></span>
                     <a :href="category.editLink" class="btn btn-warning"><i class="fa fa-edit"></i></a>
                 </div>
             </div>
             <div class="panel-body categoryItem__description">
                 {{ category.description }}
             </div>
-            <div class="panel-footer">
-                <p>Created: {{ category.created }}</p>
-                <p>Updated: {{ category.updated }}</p>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
         data() {
             return {
                 categories: [],
-                pageCount: 1,
-                endpoint: this.getApiUrl('api/categories?page=')
+                endpoint: this.getApiUrl('api/categories')
             };
         },
 
@@ -38,11 +35,10 @@
         },
 
         methods: {
-            fetch(page = 1) {
-                axios.get(this.endpoint + page)
+            fetch() {
+                axios.get(this.endpoint)
                     .then(({data}) => {
-                        this.categories = data.data;
-                        this.pageCount = data.meta.last_page;
+                        this.categories = data;
                     });
             },
 
@@ -54,8 +50,11 @@
             },
 
             removeCategory(id) {
-                this.categories = _.remove(this.categories, function (category) {
-                    return category.id !== id;
+                this.categories.forEach(category => {
+                    if (category.id === id) {
+                        let index = this.categories.indexOf(category);
+                        this.categories.splice(index, 1);
+                    }
                 });
             }
         }

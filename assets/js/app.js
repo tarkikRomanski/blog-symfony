@@ -2,7 +2,7 @@ const $ = require('jquery');
 
 require('bootstrap');
 
-window.Vue = require('vue');
+import Vue from 'vue';
 
 Vue.mixin({
     methods: {
@@ -15,8 +15,11 @@ Vue.mixin({
     }
 });
 
-Vue.component('categories', require('./components/categories/CategoriesList.vue'));
+import Categories from './components/categories/CategoriesList.vue';
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    components: {
+        Categories
+    }
 });
