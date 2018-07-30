@@ -7,10 +7,39 @@ import Vue from 'vue';
 Vue.mixin({
     methods: {
         getApiUrl(slug) {
-            var protocol = location.protocol;
-            var slashes = protocol.concat("//");
-            var host = slashes.concat(window.location.hostname);
+            let protocol = location.protocol;
+            let slashes = protocol.concat("//");
+            let host = slashes.concat(window.location.hostname);
             return host + ':8000/' + slug;
+        },
+
+        objectToFormData(obj, form, namespace) {
+
+            let fd = form || new FormData();
+            let formKey;
+
+            for(let property in obj) {
+                if(obj.hasOwnProperty(property)) {
+
+                    if(namespace) {
+                        formKey = namespace + '[' + property + ']';
+                    } else {
+                        formKey = property;
+                    }
+
+                    if(typeof obj[property] === 'object' && !(obj[property] instanceof File)) {
+
+                        this.objectToFormData(obj[property], fd, property);
+
+                    } else {
+                        fd.append(formKey, obj[property]);
+                    }
+
+                }
+            }
+
+            return fd;
+
         }
     }
 });
@@ -20,11 +49,6 @@ Vue.mixin({
  */
 // Require Froala Editor js file.
 require('froala-editor/js/froala_editor.pkgd.min');
-
-// Require Froala Editor css files.
-require('froala-editor/css/froala_editor.pkgd.min.css');
-require('font-awesome/css/font-awesome.css');
-require('froala-editor/css/froala_style.min.css');
 
 // Import and use Vue Froala lib.
 import VueFroala from 'vue-froala-wysiwyg';

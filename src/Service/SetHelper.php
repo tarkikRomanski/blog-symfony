@@ -233,6 +233,7 @@ class SetHelper
 
         $entityManager->persist($comment);
         $entityManager->flush();
+
         return $comment;
     }
 }

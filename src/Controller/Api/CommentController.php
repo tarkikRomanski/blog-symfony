@@ -32,8 +32,8 @@ class CommentController extends Controller
             [
                 'author' => $request->get('author'),
                 'content' => $request->get('content'),
-                'post_id' => $request->get('post'),
-                'category_id' => $request->get('category')
+                'post_id' => $request->get('post_id'),
+                'category_id' => $request->get('category_id')
             ]
         );
 

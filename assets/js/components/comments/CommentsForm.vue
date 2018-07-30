@@ -83,8 +83,8 @@
             },
 
             setFormData() {
-                this.data.append('author', this.comment.author);
-                this.data.append('content', this.comment.content);
+                this.data = this.objectToFormData(this.comment);
+
             },
 
             setErrors(response) {

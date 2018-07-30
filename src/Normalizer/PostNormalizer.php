@@ -6,6 +6,8 @@ namespace App\Normalizer;
 use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Post;
+use App\Service\Uploader;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -16,13 +18,19 @@ class PostNormalizer implements NormalizerInterface
      */
     private $router;
 
+    private $container;
+
+    private $uploader;
+
     /**
      * PostNormalizer constructor.
      * @param UrlGeneratorInterface $router
      */
-    public function __construct(UrlGeneratorInterface $router)
+    public function __construct(UrlGeneratorInterface $router, ContainerInterface $container, Uploader $uploader)
     {
         $this->router = $router;
+        $this->container = $container;
+        $this->uploader = $uploader;
     }
 
     /**
@@ -38,7 +46,7 @@ class PostNormalizer implements NormalizerInterface
             'id' => $object->getId(),
             'name' => $object->getName(),
             'content' => $object->getContent(),
-            'file' => $object->getFile(),
+            'file' => '/' . $this->uploader->getTargetDirectory() . $object->getFile(),
             'fileType' => $object->getFileType(),
             'comments' => array_map(function (Comment $comment) {
                 return [
@@ -50,6 +58,7 @@ class PostNormalizer implements NormalizerInterface
             }, $object->getComments()->toArray()),
             'categories' => array_map(function (Category $category) {
                 return [
+                    'id' => $category->getId(),
                     'name' => $category->getName(),
                     'editLink' => $this->router->generate(
                         'category.update',

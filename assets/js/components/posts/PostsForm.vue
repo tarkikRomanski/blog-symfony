@@ -15,14 +15,14 @@
                                 :class="{'is-invalid': errors.name, 'form-control': true}"
                                 v-model="post.name"
                         >
-                        <div v-if="errors.name" class="invalid-feedback">{{ errors.name[0] }}</div>
+                        <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
                     </div>
 
                     <div class="form-group col-12">
                         <label class="control-label" for="content">Post content:</label>
                         <froala :tag="'textarea'" :config="config" v-model="post.content"></froala>
                         <div class="alert alert-danger mt-1 w-100" v-if="errors.content">
-                            {{ errors.content[0] }}
+                            {{ errors.content }}
                         </div>
                     </div>
 
@@ -35,7 +35,7 @@
                                 v-on:change="handleFileUpload"
                                 :class="{'is-invalid': errors.file, 'form-control': true}"
                         >
-                        <div v-if="errors.file" class="invalid-feedback">{{ errors.file[0] }}</div>
+                        <div v-if="errors.file" class="invalid-feedback">{{ errors.file }}</div>
                     </div>
                 </div>
 
@@ -70,8 +70,8 @@
                 errors: [],
                 saved: false,
                 post: {
-                    name: null,
-                    content: null
+                    name: '',
+                    content: ''
                 },
                 file: null,
                 data: new FormData(),
@@ -128,9 +128,9 @@
                     ({data}) => {
                         this.setSuccessMessage();
                         this.setPostData(data);
+                        console.log(data);
                     }
-                )
-                    .catch(({response}) => this.setErrors(response));
+                ).catch(({response}) => this.setErrors(response));
             },
 
             updatePost() {
@@ -150,9 +150,9 @@
                 if (this.update !== false) {
                     axios.get(this.getApiUrl('api/posts/' + this.update))
                         .then(({data}) => {
-                            this.setPostData(data.data);
+                            this.setPostData(data);
                             this.checkedCategories = [];
-                            data.data.categories.forEach(e => {
+                            data.categories.forEach(e => {
                                 this.checkedCategories.push(e.id);
                             });
                         });
@@ -160,9 +160,9 @@
             },
 
             fetchCategories() {
-                axios.get(this.getApiUrl('api/categories/') + '?wholeList=1')
+                axios.get(this.getApiUrl('api/categories/'))
                     .then(({data}) => {
-                        this.categories = data.data;
+                        this.categories = data;
                     });
             },
 
@@ -180,7 +180,7 @@
             },
 
             setErrors(response) {
-                this.errors = response.data.errors;
+                this.errors = response.data;
             },
 
             setSuccessMessage() {

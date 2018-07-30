@@ -44,6 +44,7 @@
                 axios.get(this.getApiUrl('api/categories/'+this.id))
                     .then(({data}) => {
                         this.category = data;
+                        console.log(data);
                     });
             },
         },
