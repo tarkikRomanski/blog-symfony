@@ -1,60 +1,64 @@
 <template>
-    <div class="postForm">
-        <div class="alert alert-success" v-if="saved">
-            <strong>Success!</strong> Your post has been saved successfully.
-        </div>
-        <form method="post" @submit.prevent="onSubmit" :class="{'was-validated': errors.length > 0 }">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="form-group col-12">
-                        <label class="control-label" for="name">Post name:</label>
-                        <input
-                                type="text"
-                                name="name"
-                                id="name"
-                                :class="{'is-invalid': errors.name, 'form-control': true}"
-                                v-model="post.name"
-                        >
-                        <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
-                    </div>
+    <div>
+        <not-found v-if="notFound"></not-found>
+        <div class="postForm" v-if="!notFound">
+            <h2>{{ update ? 'Update post' : 'Create post' }}</h2>
+            <div class="alert alert-success" v-if="saved">
+                <strong>Success!</strong> Your post has been saved successfully.
+            </div>
+            <form method="post" @submit.prevent="onSubmit" :class="{'was-validated': errors.length > 0 }">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <label class="control-label" for="name">Post name:</label>
+                            <input
+                                    type="text"
+                                    name="name"
+                                    id="name"
+                                    :class="{'is-invalid': errors.name, 'form-control': true}"
+                                    v-model="post.name"
+                            >
+                            <div v-if="errors.name" class="invalid-feedback">{{ errors.name }}</div>
+                        </div>
 
-                    <div class="form-group col-12">
-                        <label class="control-label" for="content">Post content:</label>
-                        <froala :tag="'textarea'" :config="config" v-model="post.content"></froala>
-                        <div class="alert alert-danger mt-1 w-100" v-if="errors.content">
-                            {{ errors.content }}
+                        <div class="form-group col-12">
+                            <label class="control-label" for="content">Post content:</label>
+                            <froala :tag="'textarea'" :config="config" v-model="post.content"></froala>
+                            <div class="alert alert-danger mt-1 w-100" v-if="errors.content">
+                                {{ errors.content }}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-12">
+                            <label class="control-label" for="file">Upload File:</label>
+                            <input
+                                    type="file"
+                                    id="file"
+                                    ref="file"
+                                    v-on:change="handleFileUpload"
+                                    :class="{'is-invalid': errors.file, 'form-control': true}"
+                            >
+                            <div v-if="errors.file" class="invalid-feedback">{{ errors.file }}</div>
                         </div>
                     </div>
 
-                    <div class="form-group col-12">
-                        <label class="control-label" for="file">Upload File:</label>
-                        <input
-                                type="file"
-                                id="file"
-                                ref="file"
-                                v-on:change="handleFileUpload"
-                                :class="{'is-invalid': errors.file, 'form-control': true}"
-                        >
-                        <div v-if="errors.file" class="invalid-feedback">{{ errors.file }}</div>
+                    <label>Form categories:</label>
+                    <div class="row mb-3">
+                        <div class="form-check col-lg-4 col-md-6 col-12" v-for="category in categories">
+                            <input class="form-check-input" type="checkbox" :id="'category-'+category.id" v-model="checkedCategories" :value="category.id">
+                            <label :for="'category-'+category.id" class="form-check-label">
+                                {{ category.name }}
+                            </label>
+                        </div>
+                        <div class="alert alert-danger mt-1 w-100" v-if="errors.categories">
+                            {{ errors.categories[0] }}
+                        </div>
                     </div>
                 </div>
 
-                <label>Form categories:</label>
-                <div class="row mb-3">
-                    <div class="form-check col-lg-4 col-md-6 col-12" v-for="category in categories">
-                        <input class="form-check-input" type="checkbox" :id="'category-'+category.id" v-model="checkedCategories" :value="category.id">
-                        <label :for="'category-'+category.id" class="form-check-label">
-                            {{ category.name }}
-                        </label>
-                    </div>
-                    <div class="alert alert-danger mt-1 w-100" v-if="errors.categories">
-                        {{ errors.categories[0] }}
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-success w-100">Submit</button>
-        </form>
+                <button type="submit" class="btn btn-success w-100">Submit</button>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -81,7 +85,8 @@
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
-                }
+                },
+                notFound: false
             };
         },
 
@@ -155,6 +160,10 @@
                             data.categories.forEach(e => {
                                 this.checkedCategories.push(e.id);
                             });
+                        }).catch(({response}) => {
+                            if (response.status == 404) {
+                                this.notFound = true;
+                            }
                         });
                 }
             },

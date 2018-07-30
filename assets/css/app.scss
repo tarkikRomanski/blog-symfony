@@ -3,5 +3,8 @@
 // Froala
 @import "~froala-editor/css/froala_editor.pkgd.min.css";
 @import "~froala-editor/css/froala_style.min.css";
-
+// Bootstrap
 @import "~bootstrap/scss/bootstrap";
+// Custom styles
+@import "variables";
+@import "parts";

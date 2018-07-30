@@ -1,0 +1,67 @@
+.postItem {
+  &__image {
+    max-width: 100%;
+    top: 50%;
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    &Wrap {
+      height: 400px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 5px 5px 15px $text-color;
+      margin-bottom: 25px;
+    }
+  }
+
+  &__downloads {
+    margin: {
+      top: 15px;
+      bottom: 25px;
+    }
+  }
+
+  &__tools {
+    margin-bottom: 15px;
+    color: #fff;
+  }
+
+  &__categories {
+    display: flex;
+    flex-wrap: wrap;
+    margin: {
+      top: 15px;
+      bottom: 15px;
+    }
+  }
+
+  &__category {
+    border-radius: 4px;
+    background-color: $additional-color;
+    padding: 2px 5px;
+
+    &:nth-child(n + 2) {
+      margin-left: 10px;
+    }
+
+    a {
+      color: #ffffff;
+      font-weight: bold;
+
+      &:hover {
+        color: #ffffff;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.postList__img {
+  max-height: 200px;
+  overflow: hidden;
+
+  img {
+    max-width: 100%;
+  }
+}

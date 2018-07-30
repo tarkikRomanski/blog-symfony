@@ -6,8 +6,7 @@ namespace App\Normalizer;
 use App\Entity\Category;
 use App\Entity\Comment;
 use App\Entity\Post;
-use App\Service\Uploader;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -18,19 +17,20 @@ class PostNormalizer implements NormalizerInterface
      */
     private $router;
 
-    private $container;
-
-    private $uploader;
+    /**
+     * @var null|\Symfony\Component\HttpFoundation\Request
+     */
+    private $request;
 
     /**
      * PostNormalizer constructor.
      * @param UrlGeneratorInterface $router
+     * @param RequestStack $requestStack
      */
-    public function __construct(UrlGeneratorInterface $router, ContainerInterface $container, Uploader $uploader)
+    public function __construct(UrlGeneratorInterface $router, RequestStack $requestStack)
     {
         $this->router = $router;
-        $this->container = $container;
-        $this->uploader = $uploader;
+        $this->request = $requestStack->getCurrentRequest();
     }
 
     /**
@@ -46,8 +46,12 @@ class PostNormalizer implements NormalizerInterface
             'id' => $object->getId(),
             'name' => $object->getName(),
             'content' => $object->getContent(),
-            'file' => '/' . $this->uploader->getTargetDirectory() . $object->getFile(),
+            'file' => !is_null($object->getFile())
+                ? $this->request->getUriForPath('/uploads/posts/' . $object->getFile())
+                : null,
             'fileType' => $object->getFileType(),
+            'link' => $this->router->generate('post.get', ['id' => $object->getId()]),
+            'editLink' => $this->router->generate('post.update', ['id' => $object->getId()]),
             'comments' => array_map(function (Comment $comment) {
                 return [
                     'id' => $comment->getId(),
@@ -60,8 +64,8 @@ class PostNormalizer implements NormalizerInterface
                 return [
                     'id' => $category->getId(),
                     'name' => $category->getName(),
-                    'editLink' => $this->router->generate(
-                        'category.update',
+                    'link' => $this->router->generate(
+                        'category.get',
                         [
                             'id' => $category->getId()
                         ]

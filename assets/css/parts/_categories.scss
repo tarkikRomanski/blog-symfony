@@ -1,0 +1,16 @@
+.categoryItem {
+  margin-bottom: 30px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin-bottom: 15px;
+  }
+
+  &__description {
+    margin-bottom: 15px;
+  }
+}

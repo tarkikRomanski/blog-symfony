@@ -53,12 +53,14 @@ class Comment
     private $created_at;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Post", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Post", inversedBy="comments", cascade={"remove"})
+     * @ORM\JoinColumn(name="post_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
      */
     private $post;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Category", inversedBy="comments", cascade={"remove"})
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="CASCADE", nullable=true)
      */
     private $category;
 
