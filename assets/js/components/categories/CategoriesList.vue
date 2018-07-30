@@ -1,6 +1,6 @@
 <template>
     <div class="categoryList">
-        <div class="categoryItem panel panel-default" v-for="category in categories">
+        <div class="categoryItem panel panel-default mb-3" v-for="category in categories">
             <div class="panel-heading categoryItem__header">
                 <h3 class="categoryItem__title">
                     <a :href="category.link">

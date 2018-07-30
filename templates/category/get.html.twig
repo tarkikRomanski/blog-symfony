@@ -2,9 +2,9 @@
 
 {% block content %}
     <div class="col-md-12">
-        <a href="{{ path('categories.create') }}" class="btn btn-success w-100 mb-3">Add new category <i class="fa fa-plus"></i></a>
+        <a href="{{ path('post.create') }}" class="btn btn-success w-100 mb-3">Add new post <i class="fa fa-plus"></i></a>
     </div>
     <div class="col-md-12">
-        <categories></categories>
+        <category id="{{ id }}"></category>
     </div>
 {% endblock %}

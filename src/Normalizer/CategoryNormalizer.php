@@ -28,8 +28,9 @@ class CategoryNormalizer implements NormalizerInterface
      * @param Category $object
      * @param null $format
      * @param array $context
-     *
-     * @return mixed
+     * @return array|bool|float|int|string
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function normalize($object, $format = null, array $context = array())
     {
@@ -38,6 +39,7 @@ class CategoryNormalizer implements NormalizerInterface
             'name' => $object->getName(),
             'description' => $object->getDescription(),
             'editLink' => $this->container->get('router')->generate('category.update', ['id' => $object->getId()]),
+            'link' => $this->container->get('router')->generate('category.get', ['id' => $object->getId()]),
             'postsQuantity' => $object->getPosts()->count(),
             'comments' => array_map(function (Comment $comment) {
                 return [
