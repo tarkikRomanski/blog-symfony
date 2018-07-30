@@ -2,19 +2,19 @@
 
 namespace App\EventListener;
 
-use App\Service\SessionHelper;
+use App\Service\SessionService;
 use App\Service\SetHelper;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 class SessionListener
 {
     /**
-     * @var SessionHelper
+     * @var SessionService
      */
     private $sessionHelper;
 
 
-    public function __construct(SessionHelper $sessionHelper)
+    public function __construct(SessionService $sessionHelper)
     {
         $this->sessionHelper = $sessionHelper;
     }

@@ -6,7 +6,7 @@ namespace App\Service;
 use App\Entity\Session;
 use Psr\Container\ContainerInterface;
 
-class SessionHelper
+class SessionService
 {
     private $doctrine;
 

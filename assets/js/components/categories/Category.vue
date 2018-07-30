@@ -48,7 +48,6 @@
                 axios.get(this.getApiUrl('api/categories/'+this.id))
                     .then(({data}) => {
                         this.category = data;
-                        console.log(data);
                     }).catch(({response}) => {
                         if (response.status == 404) {
                             this.notFound = true;

@@ -8,7 +8,7 @@
     <body>
         <div id="app">
             <header>
-                {% set browsers = session_helper.getBrowsersQuantity() %}
+                {% set browsers = session_service.getBrowsersQuantity() %}
                 <ul>
                     {% for browser, quantity in browsers %}
                         <li><strong>{{ browser|capitalize }}:</strong> {{ quantity }}</li>

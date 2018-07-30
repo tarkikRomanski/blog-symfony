@@ -90,8 +90,7 @@
             },
 
             setFormData() {
-                this.data.append('name', this.category.name);
-                this.data.append('description', this.category.description);
+                this.data = this.objectToFormData(this.category);
             },
 
             createCategory() {

@@ -34,7 +34,7 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {CommentResource} from '../../resources/CommentResource';
 
     export default {
         data() {
@@ -45,7 +45,8 @@
                     author: '',
                     content: '',
                 },
-                data: new FormData()
+                data: new FormData(),
+                commentResource: new CommentResource()
             };
         },
 
@@ -69,7 +70,7 @@
             onSubmit() {
                 this.saved = false;
                 this.setFormData();
-                axios.post(this.getApiUrl('api/comments'), this.data)
+                this.commentResource.create(this.data)
                     .then(
                         ({data}) => {
                             this.setSuccessMessage();

@@ -20,11 +20,12 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {CommentResource} from '../../resources/CommentResource';
 
     export default {
         data() {
             return {
+                commentResource: new CommentResource()
             };
         },
 
@@ -37,8 +38,7 @@
         methods: {
             destroy(id) {
                 if(confirm('Are you sure you want to delete this comment?')) {
-                    axios.delete(this.getApiUrl('api/comments/'+id))
-                        .then(response => this.removeComments(id));
+                    this.commentResource.delete(id).then(response => this.removeComments(id));
                 }
             },
 
