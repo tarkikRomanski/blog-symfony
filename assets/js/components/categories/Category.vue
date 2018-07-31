@@ -22,13 +22,14 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {CategoryResource} from '../../resources/CategoryResource';
 
     export default {
         data() {
             return {
                 category: {},
-                notFound: false
+                notFound: false,
+                categoryResource: new CategoryResource()
             };
         },
 
@@ -45,7 +46,7 @@
 
         methods: {
             fetch() {
-                axios.get(this.getApiUrl('api/categories/'+this.id))
+                this.categoryResource.get(this.id)
                     .then(({data}) => {
                         this.category = data;
                     }).catch(({response}) => {

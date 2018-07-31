@@ -63,7 +63,8 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {PostResource} from '../../resources/PostResource';
+    import {CategoryResource} from '../../resources/CategoryResource';
 
     export default {
         data() {
@@ -86,7 +87,9 @@
                         'Content-Type': 'multipart/form-data'
                     }
                 },
-                notFound: false
+                notFound: false,
+                postResource: new PostResource(),
+                categoryResource: new CategoryResource()
             };
         },
 
@@ -125,35 +128,28 @@
             },
 
             createNewPost() {
-                axios.post(
-                    this.getApiUrl('api/posts'),
-                    this.data,
-                    this.ajaxConfig
-                ).then(
-                    ({data}) => {
-                        this.setSuccessMessage();
-                        this.setPostData(data);
-                        console.log(data);
-                    }
-                ).catch(({response}) => this.setErrors(response));
+                this.postResource.create(this.data, this.ajaxConfig)
+                    .then(
+                        ({data}) => {
+                            this.setSuccessMessage();
+                            this.setPostData(data);
+                            console.log(data);
+                        }
+                    ).catch(({response}) => this.setErrors(response));
             },
 
             updatePost() {
                 this.data.append('_method', 'PUT');
-                axios.post(
-                    this.getApiUrl('api/posts/' + this.post.id),
-                    this.data,
-                    this.ajaxConfig
-                ).then(({data}) => {
-                    this.setSuccessMessage();
-                    this.setPostData(data);
-                })
-                    .catch(({response}) => this.setErrors(response));
+                this.postResource.update(this.post.id, this.data, this.ajaxConfig)
+                    .then(({data}) => {
+                        this.setSuccessMessage();
+                        this.setPostData(data);
+                    }).catch(({response}) => this.setErrors(response));
             },
 
             fetch() {
                 if (this.update !== false) {
-                    axios.get(this.getApiUrl('api/posts/' + this.update))
+                    this.postResource.get(this.update)
                         .then(({data}) => {
                             this.setPostData(data);
                             this.checkedCategories = [];
@@ -169,7 +165,7 @@
             },
 
             fetchCategories() {
-                axios.get(this.getApiUrl('api/categories/'))
+                this.categoryResource.list()
                     .then(({data}) => {
                         this.categories = data;
                     });

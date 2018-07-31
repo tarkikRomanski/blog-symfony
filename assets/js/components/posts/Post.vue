@@ -37,13 +37,14 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {PostResource} from '../../resources/PostResource';
 
     export default {
         data() {
             return {
                 post: {},
-                notFound: false
+                notFound: false,
+                postResource: new PostResource()
             };
         },
 
@@ -60,7 +61,7 @@
 
         methods: {
             fetch() {
-                axios.get(this.getApiUrl('api/posts/'+this.id))
+                this.postResource.get(this.id)
                     .then(({data}) => {
                         this.post = data;
                     }).catch(({response}) => {
@@ -72,7 +73,7 @@
 
             destroy(id) {
                 if(confirm('Are you sure you want to delete this post?')) {
-                    axios.delete(this.getApiUrl('api/posts/'+id))
+                    this.postResource.delete(this.id)
                         .then(response => {
                             location.href = this.getApiUrl('');
                         });

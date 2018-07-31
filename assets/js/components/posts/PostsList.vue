@@ -17,13 +17,13 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {PostResource} from '../../resources/PostResource';
 
     export default {
         data() {
             return {
                 posts: [],
-                endpoint: this.getApiUrl('api/posts')
+                postResource: new PostResource()
             };
         },
 
@@ -37,7 +37,7 @@
 
         methods: {
             fetch() {
-                axios.get(this.endpoint + '?category=' + this.category)
+                this.postResource.list(this.category)
                     .then(({data}) => {
                         this.posts = data;
                     });

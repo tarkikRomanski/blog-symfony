@@ -39,7 +39,7 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {CategoryResource} from '../../resources/CategoryResource';
 
     export default {
         data() {
@@ -51,7 +51,8 @@
                     description: ''
                 },
                 data: new FormData(),
-                notFound: false
+                notFound: false,
+                categoryResource: new CategoryResource()
             };
         },
 
@@ -79,7 +80,7 @@
 
             fetch() {
                 if (this.update !== false) {
-                    axios.get(this.getApiUrl('api/categories/' + this.update))
+                    this.categoryResource.get(this.update)
                         .then(({data}) => this.setCategoryData(data))
                         .catch(({response}) => {
                             if (response.status == 404) {
@@ -94,7 +95,7 @@
             },
 
             createCategory() {
-                axios.post(this.getApiUrl('api/categories'), this.data)
+                this.categoryResource.create(this.data)
                     .then(
                         ({data}) => {
                             this.setSuccessMessage();
@@ -106,7 +107,7 @@
 
             updateCategory() {
                 this.data.append('_method', 'PUT');
-                axios.post(this.getApiUrl('api/categories/' + this.category.id), this.data)
+                this.categoryResource.update(this.category.id, this.data)
                     .then(({data}) => this.setSuccessMessage())
                     .catch(({response}) => this.setErrors(response));
             },

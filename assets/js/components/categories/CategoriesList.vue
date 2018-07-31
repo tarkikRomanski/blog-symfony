@@ -20,13 +20,13 @@
 </template>
 
 <script>
-    import axios from 'axios';
+    import {CategoryResource} from '../../resources/CategoryResource';
 
     export default {
         data() {
             return {
                 categories: [],
-                endpoint: this.getApiUrl('api/categories')
+                categoryResource: new CategoryResource()
             };
         },
 
@@ -36,7 +36,7 @@
 
         methods: {
             fetch() {
-                axios.get(this.endpoint)
+                this.categoryResource.list()
                     .then(({data}) => {
                         this.categories = data;
                     });
@@ -44,7 +44,7 @@
 
             destroy(id) {
                 if(confirm('Are you sure you want to delete this category?')) {
-                    axios.delete(this.getApiUrl('api/categories/'+id))
+                    this.categoryResource.delete(id)
                         .then(response => this.removeCategory(id));
                 }
             },

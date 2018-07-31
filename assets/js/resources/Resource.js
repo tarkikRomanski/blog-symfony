@@ -8,11 +8,15 @@ export class Resource {
         return host + ':8000/' + slug;
     }
 
-    create(url, data) {
-        return axios.post(this.getApiUrl(url), data);
+    create(url, data, config = {}) {
+        return axios.post(this.getApiUrl(url), data, config);
     }
 
     delete(url) {
         return axios.delete(this.getApiUrl(url))
+    }
+
+    get(url) {
+        return axios.get(this.getApiUrl(url));
     }
 }
