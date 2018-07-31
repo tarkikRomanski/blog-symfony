@@ -133,7 +133,6 @@
                         ({data}) => {
                             this.setSuccessMessage();
                             this.setPostData(data);
-                            console.log(data);
                         }
                     ).catch(({response}) => this.setErrors(response));
             },
