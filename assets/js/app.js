@@ -10,7 +10,7 @@ Vue.mixin({
             let protocol = location.protocol;
             let slashes = protocol.concat("//");
             let host = slashes.concat(window.location.hostname);
-            return host + ':8000/' + slug;
+            return host + '/' + slug;
         },
 
         objectToFormData(obj, form, namespace) {
